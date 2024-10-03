@@ -2,13 +2,19 @@ export interface SubMenu {
     label: string;
     subMenu?: SubMenu[];
 }
-export interface SidebarMenu {
+export interface MenuItem {
     label: string;
     subMenu?: SubMenu[];
 }
 
-
-export const sidebarMenuData: SidebarMenu[] = [
+interface sidebarSubMenu {
+    label: string;
+}
+interface sidebarMenu {
+    label: string;
+    subMenu?: sidebarSubMenu[]
+}
+export const menuItem: MenuItem[] = [
     {
         label: 'System Management',
         subMenu: [
@@ -56,5 +62,30 @@ export const sidebarMenuData: SidebarMenu[] = [
     },
 ]
 
+export const sidebarMenuItem: sidebarMenu[] = [
+    {
+        label: 'System',
+        subMenu: [
+            {
+                label: "System Code"
+            },
+            {
+                label: "Properties"
+            },
+            {
+                label: "Menus"
+            },
+            {
+                label: "Api List"
+            },
+        ]
+    }, 
+     {
+        label: "Users & Group"
+    },
+     {
+        label: "Competition"
+    },
 
 
+]
