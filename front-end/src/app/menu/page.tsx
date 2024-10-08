@@ -14,7 +14,7 @@ import {
   setIsAllExpanded,
   setActiveSubMenu,
   setParentData,
-  setSubMenuName,
+  setSubMenuName, 
   setDepth,
   setMenuId,
   setData,
@@ -102,7 +102,6 @@ export default function Menu() {
     }
     catch (error) {
       toast.success(`Menu item ${newMenuLabel} not added successfully`)
-
     } finally {
       dispatch(setIsLoading(false))
     }
