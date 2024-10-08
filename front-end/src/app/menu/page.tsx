@@ -1,8 +1,11 @@
 'use client'
-import { useCallback, useEffect } from 'react';
-import forwardArrow from '../../public/icons/icons8-forward-24.png'
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-hot-toast';
+import { BASE_URL } from '../../../Common/common';
+import { RootState } from '@/app/redux/store';
+import Loader from '../../../Common/Loader';
+import React, { useCallback, useEffect } from 'react';
+import forwardIcon  from '../../../public/icons/icons8-forward-24.png'
 
 import {
   toggleSidebar,
@@ -16,15 +19,12 @@ import {
   setMenuId,
   setData,
   setParentIndex,
-  setIsedit,
+  setIsEdit,
   setIsLoading
-} from './redux/menuSlice';
+} from '@/app/redux/menuSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './redux/store';
-import Loader from './loading';
 
-export default function Home() {
-  const baseUrl = "https://fullstack-test-task.onrender.com"
+export default function Menu() {
   const dispatch = useDispatch();
   const {
     isOpenSidebar,
@@ -57,11 +57,13 @@ export default function Home() {
   const getMenu = async () => {
     dispatch(setIsLoading(true))
     try {
-      const res = await fetch(`${baseUrl}/menu`,
+      const res = await fetch(`${BASE_URL}/menu`,
         { method: 'GET' }
       );
-      const data = await res.json();
-      dispatch(setData(data.data))
+      if (res.ok) {
+        const data = await res.json();
+        dispatch(setData(data.data))
+      }
     } catch (err) {
       toast.error("Failed to load menu data.");
     }
@@ -69,21 +71,21 @@ export default function Home() {
       dispatch(setIsLoading(false))
     }
   }
+
   useEffect(() => {
     getMenu()
   }, []);
 
-  const addMenuItem = async (menuId: string, depth: number, label: string, parentId: string | null) => {
-    const adjustDepth = parentId && depth > 0 ? depth + 1 : depth
+  const addMenuItem = async (menuId: string, depth: number, newMenuLabel: string) => {
     const payload = {
       menuId: uuidv4(),
-      depth: adjustDepth,
+      depth: depth,
       parentId: menuId,
-      name: label,
+      name: newMenuLabel,
     };
     dispatch(setIsLoading(true))
     try {
-      const res = await fetch(`${baseUrl}/menu`, {
+      const res = await fetch(`${BASE_URL}/menu`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,14 +101,14 @@ export default function Home() {
       }
     }
     catch (error) {
-      toast.success(`Menu item ${label} not added successfully`)
+      toast.success(`Menu item ${newMenuLabel} not added successfully`)
 
     } finally {
       dispatch(setIsLoading(false))
     }
   };
 
-  const updateMenuById = async (menuId: string, parentIndex: string | null, depth: number, label: string) => {
+    const updateMenuById = async (menuId: string, parentIndex: string | null, depth: number, label: string) => {
     const payload = {
       menuId: menuId,
       depth: depth,
@@ -115,7 +117,7 @@ export default function Home() {
     };
     dispatch(setIsLoading(true))
     try {
-      const res = await fetch(`${baseUrl}/menu/${menuId}`, {
+      const res = await fetch(`${BASE_URL}/menu/${menuId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +140,7 @@ export default function Home() {
   const deleteMenuById = async (menuId: string) => {
     dispatch(setIsLoading(true))
     try {
-      const res = await fetch(`${baseUrl}/menu/${menuId}`, {
+      const res = await fetch(`${BASE_URL}/menu/${menuId}`, {
         method: 'DELETE',
       })
       if (res.ok) {
@@ -148,7 +150,7 @@ export default function Home() {
 
         const idsToDelete = [menuId, ...childrenIds];
         for (const id of idsToDelete) {
-          await fetch(`${baseUrl}/menu/${id}`, { method: 'DELETE' });
+          await fetch(`${BASE_URL}/menu/${id}`, { method: 'DELETE' });
         }
         dispatch(setData(getData.filter(item => !idsToDelete.includes(item.menuId))));
         toast.success("SuccessFully Deleted Data")
@@ -164,7 +166,7 @@ export default function Home() {
 
   const addSubMenuItem = (depth: number, subItemId: string, parentLabel: string, parentId: string) => {
     resetForm()
-    dispatch(setIsedit(false))
+    dispatch(setIsEdit(false))
     dispatch(setMenuId(subItemId))
     if (parentId) {
       dispatch(setParentIndex(parentId))
@@ -181,7 +183,7 @@ export default function Home() {
   };
 
   const handleEditMenuItem = (menuId: string, depth: number, subItemName: string, parentLabel: string, parentId: string) => {
-    dispatch(setIsedit(true))
+    dispatch(setIsEdit(true))
     dispatch(setDepth(depth))
     dispatch(setMenuId(menuId))
     dispatch(setSubMenuName(subItemName))
@@ -190,7 +192,6 @@ export default function Home() {
       dispatch(setParentData(parentLabel))
     } else {
       dispatch(setParentData(""))
-
     }
   }
 
@@ -205,7 +206,7 @@ export default function Home() {
     if (isEdit) {
       updateMenuById(menuId, parentId, depth, name);
     } else {
-      addMenuItem(menuId, depth, name, parentId);
+      addMenuItem(menuId, depth, name);
     }
     resetForm()
   }
@@ -217,7 +218,7 @@ export default function Home() {
         {subMenuItems.map((subItem) => (
           <div key={subItem.menuId} className='flex py-1'>
             <img className="h-5"
-              src={activeSubMenu === subItem.menuId ? '/icons/button.svg' : forwardArrow.src}
+              src={activeSubMenu === subItem.menuId ? '/icons/button.svg' : forwardIcon.src}
               alt="collapse icon" />
             <div className='flex flex-col'>
               <div className='flex'>
@@ -326,7 +327,8 @@ export default function Home() {
                 >
                   <div className='flex'>
                     <img className="h-5"
-                      src={activeMenu === parentItem.menuId ? '/icons/button.svg' : forwardArrow.src} />
+                      src={activeMenu === parentItem.menuId ? '/icons/button.svg' : forwardIcon.src}
+                    />
                     <a href='#' >{parentItem.name}</a>
                     {activeMenu === parentItem.menuId && (
                       <div className='flex'>

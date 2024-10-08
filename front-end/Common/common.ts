@@ -1,0 +1,1 @@
+export const baseUrl = "https://fullstack-test-task.onrender.com"

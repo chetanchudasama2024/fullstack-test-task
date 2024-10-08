@@ -1,16 +1,22 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface MenuItem {
+    menuId: string,
+    name: string,
+    parentId: string,
+    depth: number,
+}
 interface MenuState {
     isOpenSidebar: boolean;
     isActive: 'expand' | 'collapse' | null,
-    activeMenu: number | null,
+    activeMenu: string | null,
     isAllExpanded: boolean,
     activeSubMenu: string | null;
     menuId: string,
     depth: number,
     parentData: string,
     subMenuName: string,
-    getData: any[];
+    getData: MenuItem[];
     parentIndex: string | null;
     isEdit: boolean,
     isLoading: boolean,
@@ -42,7 +48,7 @@ const menuSlice = createSlice({
         setIsActive: (state, action: PayloadAction<'expand' | 'collapse' | null>) => {
             state.isActive = action.payload;
         },
-        setActiveMenu: (state, action: PayloadAction<number | null>) => {
+        setActiveMenu: (state, action: PayloadAction<string | null>) => {
             state.activeMenu = action.payload;
         },
         setIsAllExpanded: (state, action: PayloadAction<boolean>) => {
@@ -63,13 +69,13 @@ const menuSlice = createSlice({
         setDepth: (state, action: PayloadAction<number>) => {
             state.depth = action.payload;
         },
-        setData: (state, action: PayloadAction<any[]>) => {
+        setData: (state, action: PayloadAction<MenuItem[]>) => {
             state.getData = action.payload;
         },
         setParentIndex: (state, action: PayloadAction<string | null>) => {
             state.parentIndex = action.payload;
         },
-        setIsedit: (state, action: PayloadAction<boolean>) => {
+        setIsEdit: (state, action: PayloadAction<boolean>) => {
             state.isEdit = action.payload;
         },
         setIsLoading: (state, action: PayloadAction<boolean>) => {
@@ -90,7 +96,7 @@ export const { toggleSidebar,
     setDepth,
     setData,
     setParentIndex,
-    setIsedit,
+    setIsEdit,
     setIsLoading
 } = menuSlice.actions
 export default menuSlice.reducer;
